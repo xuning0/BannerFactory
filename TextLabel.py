@@ -1,8 +1,6 @@
-from PIL import Image, ImageDraw, ImageFont
-from Error import DrawLabelError
+from PIL import Image, ImageDraw
+from Error import IrregularError
 
-test_text = 'Apple这个问题《甩给佟丽娅的时候》，她的回答也劲爆得很：“只要回家就好。”'
-test_font = ImageFont.truetype('SourceHanSansCN-Regular.otf', 36)
 
 chinese_punctuations_cannot_at_beginning_of_line = '，。、；】》？！：’”）'
 chinese_punctuations_cannot_at_end_of_line = '【《‘“'
@@ -10,7 +8,7 @@ chinese_punctuations_cannot_at_end_of_line = '【《‘“'
 
 class TextLabel(object):
     def __init__(self, text, font, number_of_lines=1, max_width=0, line_spacing=0, text_color=(255, 255, 255),
-                 background_color=0):
+                 background_color=(255, 255, 255, 0)):
         self.text = text
         self.font = font
         self.number_of_lines = number_of_lines
@@ -27,7 +25,7 @@ class TextLabel(object):
         if self.number_of_lines == 1:
             text_size = self.font.getsize(self.text)
             if 0 < self.max_width < text_size[0]:
-                raise DrawLabelError('文字在1行内显示不完')
+                raise IrregularError('文字在1行内显示不完')
             else:
                 self.fittingSize = text_size
 
@@ -37,7 +35,7 @@ class TextLabel(object):
                 return label
         else:  # 多行
             if self.max_width <= 0:
-                raise DrawLabelError('绘制多行文字时必须设置最大宽度')
+                raise IrregularError('绘制多行文字时必须设置最大宽度')
             else:
                 self._divide_string_to_array(self.text)
                 if len(self.__mutiline_divided_strings) > 0:
@@ -110,7 +108,7 @@ class TextLabel(object):
                 self._divide_string_to_array(text[valid_beginning_line_index:])
 
         if 1 < self.number_of_lines < len(self.__mutiline_divided_strings):
-            raise DrawLabelError('文字在{}行内显示不完'.format(self.number_of_lines))
+            raise IrregularError('文字在{}行内显示不完'.format(self.number_of_lines))
 
     def _append_substring_info(self, substring):
         self.__mutiline_divided_strings.append(substring)
@@ -123,6 +121,3 @@ def _is_allow_at_beginning_of_line(text):
 
 def _is_allow_at_end_of_line(text):
     return chinese_punctuations_cannot_at_end_of_line.find(text) == -1
-
-
-TextLabel(test_text, test_font, 3, 300, 4).label().show()
