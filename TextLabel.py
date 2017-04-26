@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+from Error import DrawLabelError
 
 test_text = 'Apple这个问题《甩给佟丽娅的时候》，她的回答也劲爆得很：“只要回家就好。”'
 test_font = ImageFont.truetype('SourceHanSansCN-Regular.otf', 36)
@@ -26,8 +27,7 @@ class TextLabel(object):
         if self.number_of_lines == 1:
             text_size = self.font.getsize(self.text)
             if 0 < self.max_width < text_size[0]:
-                print('文字在1行内显示不完')
-                return
+                raise DrawLabelError('文字在1行内显示不完')
             else:
                 self.fittingSize = text_size
 
@@ -37,8 +37,7 @@ class TextLabel(object):
                 return label
         else:  # 多行
             if self.max_width <= 0:
-                print('绘制多行文字时必须设置最大宽度')
-                return
+                raise DrawLabelError('绘制多行文字时必须设置最大宽度')
             else:
                 self._divide_string_to_array(self.text)
                 if len(self.__mutiline_divided_strings) > 0:
@@ -111,8 +110,7 @@ class TextLabel(object):
                 self._divide_string_to_array(text[valid_beginning_line_index:])
 
         if 1 < self.number_of_lines < len(self.__mutiline_divided_strings):
-            print('文字在{}行内显示不完'.format(self.number_of_lines))
-            return
+            raise DrawLabelError('文字在{}行内显示不完'.format(self.number_of_lines))
 
     def _append_substring_info(self, substring):
         self.__mutiline_divided_strings.append(substring)
