@@ -63,6 +63,7 @@ class TextLabel(object):
 
         return self.__mutiline_divided_strings, self.__mutiline_divided_strings_height
 
+# FIXME: 无法处理\n
     def _divide_string_to_array(self, text):
         if len(text) == 0:
             return

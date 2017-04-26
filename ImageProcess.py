@@ -8,6 +8,7 @@ dst_large_size = (1250, 540)
 dst_small_size = (1080, 540)
 
 left_padding = 152
+bottom_padding = 83
 
 title_max_width = 800
 title_font = ImageFont.truetype('SourceHanSansCN-Bold.otf', 49)
@@ -15,7 +16,6 @@ title_to_description_spacing = 50
 title_line_spacing = 17
 
 description_max_width = 945
-description_y = 375
 description_font = ImageFont.truetype('SourceHanSansCN-Regular.otf', 36)
 description_line_spacing = 10
 
@@ -38,8 +38,8 @@ def process(image, tag, title, description, tag_type=TAG_TYPE_COLLECTION):
                   (im.height - dst_large_size[1]) / 2,
                   (im.width + dst_large_size[0]) / 2,
                   (im.height + dst_large_size[1]) / 2))
-    _draw_description_label(im, description)
-    _draw_title_label(im, title)
+    description_label_y = _draw_description_label(im, description)
+    _draw_title_label(im, title, description_label_y)
     _draw_tag(im, tag, tag_type)
     return im
 
@@ -55,14 +55,17 @@ def _scale_by_width_or_height(image):
 def _draw_description_label(image, description):
     label = TextLabel(description, description_font, 2, description_max_width, description_line_spacing)
     label_image = label.label()
-    image.paste(label_image, (left_padding, description_y), label_image)
+
+    label_y = int(dst_large_size[1] - bottom_padding - label.fittingSize[1])
+    image.paste(label_image, (left_padding, label_y), label_image)
+    return label_y
 
 
-def _draw_title_label(image, title):
+def _draw_title_label(image, title, description_label_y):
     label = TextLabel(title, title_font, 2, title_max_width, title_line_spacing)
     label_image = label.label()
     image.paste(label_image,
-                (left_padding, description_y - label.fittingSize[1] - title_to_description_spacing),
+                (left_padding, description_label_y - label.fittingSize[1] - title_to_description_spacing),
                 label_image)
 
 
@@ -78,7 +81,7 @@ def _draw_tag(image, tag, tag_type):
     elif tag_type == TAG_TYPE_SIGNING_WRITER or tag_type == TAG_TYPE_HOT:
         color = (255, 90, 113)
 
-    # trick: 绘制2倍图，然后以抗锯齿模式resize成1倍尺寸
+    # trick: 绘制N倍图，然后以抗锯齿模式resize成1倍尺寸
     trick_scale = 4
     trick_tag_view_size = ((label.fittingSize[0] + tag_height) * trick_scale, tag_height * trick_scale)
     tag_view = Image.new('RGBA', trick_tag_view_size, (*color, 0))
