@@ -3,7 +3,6 @@ from Error import IrregularError
 from TextLabel import TextLabel
 
 
-test_image = Image.open('test.jpg')
 dst_large_size = (1250, 540)
 dst_small_size = (1080, 540)
 
@@ -34,14 +33,18 @@ def process(image, tag, title, description, tag_type=TAG_TYPE_COLLECTION):
         raise IrregularError('图片尺寸小于目标裁剪尺寸')
 
     im = _scale_by_width_or_height(image)
-    im = im.crop(((im.width - dst_large_size[0]) / 2,
-                  (im.height - dst_large_size[1]) / 2,
-                  (im.width + dst_large_size[0]) / 2,
-                  (im.height + dst_large_size[1]) / 2))
+    im = crop(im, dst_large_size)
     description_label_y = _draw_description_label(im, description)
     _draw_title_label(im, title, description_label_y)
     _draw_tag(im, tag, tag_type)
     return im
+
+
+def crop(image, dst_size):
+    return image.crop(((image.width - dst_size[0]) / 2,
+                       (image.height - dst_size[1]) / 2,
+                       (image.width + dst_size[0]) / 2,
+                       (image.height + dst_size[1]) / 2))
 
 
 def _scale_by_width_or_height(image):
@@ -96,6 +99,3 @@ def _draw_tag(image, tag, tag_type):
     tag_view.paste(label_image, (int(tag_height / 2), int((tag_height - label.fittingSize[1]) / 2)), label_image)
 
     image.paste(tag_view, (left_padding, tag_y), tag_view)
-
-final_image = process(test_image, '@IT', '晨兴创投 · 刘芹：我才刚刚理解创投行业，虽然我已入行16年了', '这个问题甩给佟丽娅的时候，她的回答也劲爆得很：“只要回家就好。”')
-final_image.save('final.jpg')
