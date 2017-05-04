@@ -41,8 +41,9 @@ def run_command_line():
 
 
 if __name__ == '__main__':
-    client = Client('https://9cdee7750e2a4b18b83138bd841c03bc:ba0ab74060fa47d29efc99fc18eb18d7@sentry.io/164738')
-    sys.excepthook = handle_exception
+    # release时，1、填入sentry url（防止开源下私钥泄露），2、取消sys.excepthook行的注释
+    client = Client()
+    # sys.excepthook = handle_exception
 
     if len(sys.argv) == 1:
         app = QApplication(sys.argv)
