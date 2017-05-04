@@ -99,7 +99,10 @@ def _draw_tag(image, tag, tag_type):
     label = TextLabel(tag, tag_font)
     label_image = label.label()
 
-    color = TAG_COLOR_LIST[tag_type]
+    type = tag_type
+    if tag_type > len(TAG_COLOR_LIST) - 3:
+        type = 0
+    color = TAG_COLOR_LIST[type]
 
     # trick: 绘制N倍图，然后以抗锯齿模式resize成1倍尺寸
     trick_scale = 4
