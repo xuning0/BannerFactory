@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QLineEdit, QAction, \
-    QFileDialog, QSizePolicy, QMessageBox
-from PyQt5.QtGui import QKeySequence, QPixmap
+    QFileDialog, QSizePolicy, QMessageBox  # , QInputDialog
+from PyQt5.QtGui import QKeySequence, QPixmap, QColor
 from PyQt5.QtCore import Qt
 import ImageProcess
 from PIL import Image, ImageQt
@@ -28,6 +28,8 @@ class BFMainWindow(QMainWindow):
 
         self.combo_box = QComboBox()
         self.combo_box.addItems(tag_types)
+        for i in range(len(tag_types)):
+            self.combo_box.setItemData(i, QColor(*(ImageProcess.TAG_COLOR_LIST[i])), Qt.ForegroundRole)
 
         self.tag_edit = QLineEdit()
         self.title_edit = QLineEdit()
@@ -39,6 +41,7 @@ class BFMainWindow(QMainWindow):
     def setup_ui(self):
         self.setWindowTitle('BannerFactory')
         self.resize(540, 480)
+        self.setMinimumSize(540, 480)
         self.setup_menu()
         self.setup_main()
 
@@ -46,11 +49,16 @@ class BFMainWindow(QMainWindow):
         menu_bar = self.menuBar()
 
         file_menu = menu_bar.addMenu('文件')
-        open_menu = file_menu.addMenu('打开')
-        open_local_action = QAction('本地图片…', self)
+
+        open_local_action = QAction('打开图片…', self)
         open_local_action.setShortcut(QKeySequence.Open)
         open_local_action.triggered.connect(self.open_local)
-        open_menu.addAction(open_local_action)
+        file_menu.addAction(open_local_action)
+
+        # search_image_action = QAction('搜索图片…', self)
+        # search_image_action.setShortcut(QKeySequence.Find)
+        # search_image_action.triggered.connect(self.search_remote_image)
+        # file_menu.addAction(search_image_action)
 
         save_action = QAction('保存…', self)
         save_action.setShortcut(QKeySequence.Save)
@@ -58,6 +66,7 @@ class BFMainWindow(QMainWindow):
         file_menu.addAction(save_action)
         # ---------------------------------------
         function_menu = menu_bar.addMenu('功能')
+
         preview_action = QAction('预览', self)
         preview_action.setShortcut(Qt.CTRL + Qt.Key_P)
         preview_action.triggered.connect(self.preview)
@@ -103,6 +112,11 @@ class BFMainWindow(QMainWindow):
             self.opened_image = QPixmap(self.opened_image_path)
             self.scale_image_to_aspect_fit_label(self.opened_image)
 
+    # def search_remote_image(self):
+    #     text, ok = QInputDialog.getText(self, '搜索', '图片关键词：')
+    #     if ok:
+    #         pass
+
     def save(self):
         if self.processed_image is None:
             show_error_alert('请先预览图片生成效果', '预览后才能生成Banner图片')
@@ -115,10 +129,14 @@ class BFMainWindow(QMainWindow):
         if len(dialog.selectedFiles()):
             dir_name = dialog.selectedFiles()[0]
             image_name = int(time.time())
-            self.processed_image.save(os.path.join(dir_name, 'Web_' + str(image_name) + '.jpg'))
+            self.processed_image.save(os.path.join(dir_name, 'Web_' + str(image_name) + '.jpg'),
+                                      quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                                      optimize=True)
 
-            app_image = ImageProcess.crop(self.processed_image, ImageProcess.dst_small_size)
-            app_image.save(os.path.join(dir_name, 'App_' + str(image_name) + '.jpg'))
+            app_image = ImageProcess.crop_around_center(self.processed_image, ImageProcess.dst_small_size)
+            app_image.save(os.path.join(dir_name, 'App_' + str(image_name) + '.jpg'),
+                           quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                           optimize=True)
 
     def preview(self):
         error_message = None
@@ -137,12 +155,14 @@ class BFMainWindow(QMainWindow):
 
         image = Image.open(self.opened_image_path)
         try:
-            self.processed_image = ImageProcess.process(image, self.tag_edit.displayText(), self.title_edit.displayText(),
-                                                    self.desc_edit.displayText(), self.combo_box.currentIndex())
+            self.processed_image = ImageProcess.process(image,
+                                                        self.tag_edit.displayText(),
+                                                        self.title_edit.displayText(),
+                                                        self.desc_edit.displayText(),
+                                                        self.combo_box.currentIndex())
             self.scale_image_to_aspect_fit_label(ImageQt.toqpixmap(self.processed_image))
         except IrregularError as e:
             show_error_alert('出错了', e.message)
-
 
     def resizeEvent(self, QResizeEvent):
         current_image = None

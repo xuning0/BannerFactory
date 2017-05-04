@@ -6,6 +6,9 @@ from TextLabel import TextLabel
 dst_large_size = (1250, 540)
 dst_small_size = (1080, 540)
 
+# 标题和描述所占目标大尺寸的百分比位置：x1, y1, x2, y2 ，左上点和右下点
+roi_of_large_size = (0.12, 0.38, 0.88, 0.85)
+
 left_padding = 152
 bottom_padding = 83
 
@@ -27,26 +30,41 @@ TAG_TYPE_ACTIVITY = 1
 TAG_TYPE_SIGNING_WRITER = 2
 TAG_TYPE_HOT = 3
 
+TAG_COLOR_LIST = [(88, 184, 232), (240, 173, 67), (255, 90, 113), (255, 90, 113)]
+
+SAVE_IMAGE_QUALITY = 50
+
 
 def process(image, tag, title, description, tag_type=TAG_TYPE_COLLECTION):
     if image.width < dst_large_size[0] or image.height < dst_large_size[1]:
         raise IrregularError('图片尺寸小于目标裁剪尺寸')
 
     im = _scale_by_width_or_height(image)
-    im = crop(im, dst_large_size)
-    description_label_y = _draw_description_label(im, description)
-    _draw_title_label(im, title, description_label_y)
+    im = crop_around_center(im, dst_large_size)
+
+    description_label_image, description_label_height = _description_label(description)
+    title_label_image, title_label_height = _title_label(title)
+    description_label_y = int(dst_large_size[1] - bottom_padding - description_label_height)
+    title_label_y = int(description_label_y - title_label_height - title_to_description_spacing)
+
+    _draw_gradient(im, title_label_y, dst_large_size[1])
+
+    im.paste(title_label_image, (left_padding, title_label_y), title_label_image)
+    im.paste(description_label_image, (left_padding, description_label_y), description_label_image)
+
     _draw_tag(im, tag, tag_type)
+
     return im
 
 
-def crop(image, dst_size):
+def crop_around_center(image, dst_size):
     return image.crop(((image.width - dst_size[0]) / 2,
                        (image.height - dst_size[1]) / 2,
                        (image.width + dst_size[0]) / 2,
                        (image.height + dst_size[1]) / 2))
 
 
+# ----------- Private ------------
 def _scale_by_width_or_height(image):
     trying_height = dst_large_size[0] / image.width * image.height
     if trying_height > dst_large_size[1]:
@@ -55,34 +73,33 @@ def _scale_by_width_or_height(image):
         return image.resize((int(dst_large_size[1] / image.height * image.width), dst_large_size[1]))
 
 
-def _draw_description_label(image, description):
+def _description_label(description):
     label = TextLabel(description, description_font, 2, description_max_width, description_line_spacing)
     label_image = label.label()
-
-    label_y = int(dst_large_size[1] - bottom_padding - label.fittingSize[1])
-    image.paste(label_image, (left_padding, label_y), label_image)
-    return label_y
+    return label_image, label.fittingSize[1]
 
 
-def _draw_title_label(image, title, description_label_y):
+def _title_label(title):
     label = TextLabel(title, title_font, 2, title_max_width, title_line_spacing)
     label_image = label.label()
-    image.paste(label_image,
-                (left_padding, description_label_y - label.fittingSize[1] - title_to_description_spacing),
-                label_image)
+    return label_image, label.fittingSize[1]
+
+
+def _draw_gradient(image, y1, y2):
+    w = image.width
+    h = y2 - y1
+    gradient_view = Image.new('RGBA', (w, h))
+    d = ImageDraw.ImageDraw(gradient_view)
+    for y in range(gradient_view.height):
+        d.line((0, y, w, y), (0, 0, 0, int(y / h * 0.7 * 255)))
+    image.paste(gradient_view, (0, y1), gradient_view)
 
 
 def _draw_tag(image, tag, tag_type):
     label = TextLabel(tag, tag_font)
     label_image = label.label()
 
-    color = 0
-    if tag_type == TAG_TYPE_COLLECTION:
-        color = (88, 184, 232)
-    elif tag_type == TAG_TYPE_ACTIVITY:
-        color = (240, 173, 67)
-    elif tag_type == TAG_TYPE_SIGNING_WRITER or tag_type == TAG_TYPE_HOT:
-        color = (255, 90, 113)
+    color = TAG_COLOR_LIST[tag_type]
 
     # trick: 绘制N倍图，然后以抗锯齿模式resize成1倍尺寸
     trick_scale = 4
