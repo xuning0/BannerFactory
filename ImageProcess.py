@@ -1,6 +1,8 @@
 from PIL import Image, ImageFont, ImageDraw
 from Error import IrregularError
 from TextLabel import TextLabel
+import os
+import CommonUtil
 
 
 dst_large_size = (1250, 540)
@@ -13,17 +15,17 @@ left_padding = 152
 bottom_padding = 83
 
 title_max_width = 800
-title_font = ImageFont.truetype('SourceHanSansCN-Bold.otf', 49)
+title_font = ImageFont.truetype(os.path.join(CommonUtil.resource_abs_path(), 'SourceHanSansCN-Bold.otf'), 49)
 title_to_description_spacing = 50
 title_line_spacing = 17
 
 description_max_width = 945
-description_font = ImageFont.truetype('SourceHanSansCN-Regular.otf', 36)
+description_font = ImageFont.truetype(os.path.join(CommonUtil.resource_abs_path(), 'SourceHanSansCN-Regular.otf'), 36)
 description_line_spacing = 10
 
 tag_y = 74
 tag_height = 76
-tag_font = ImageFont.truetype('SourceHanSansCN-Bold.otf', 38)
+tag_font = ImageFont.truetype(os.path.join(CommonUtil.resource_abs_path(), 'SourceHanSansCN-Bold.otf'), 38)
 
 TAG_TYPE_COLLECTION = 0
 TAG_TYPE_ACTIVITY = 1
@@ -99,10 +101,10 @@ def _draw_tag(image, tag, tag_type):
     label = TextLabel(tag, tag_font)
     label_image = label.label()
 
-    type = tag_type
+    ttype = tag_type
     if tag_type > len(TAG_COLOR_LIST) - 3:
-        type = 0
-    color = TAG_COLOR_LIST[type]
+        ttype = 0
+    color = TAG_COLOR_LIST[ttype]
 
     # trick: 绘制N倍图，然后以抗锯齿模式resize成1倍尺寸
     trick_scale = 4
