@@ -122,19 +122,17 @@ class BFMainWindow(QMainWindow):
             show_error_alert('请先预览图片生成效果', '预览后才能生成Banner图片')
             return
 
-        dialog = QFileDialog()
-        dialog.setLabelText(QFileDialog.Accept, '保存到此目录')
-        dialog.setOptions(QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
-        dialog.exec_()
-        if len(dialog.selectedFiles()):
-            dir_name = dialog.selectedFiles()[0]
-            image_name = int(time.time())
-            self.processed_image.save(os.path.join(dir_name, 'Web_' + str(image_name) + '.jpg'),
+        fname = QFileDialog.getSaveFileName(caption='保存',
+                                            options=QFileDialog.DontResolveSymlinks)
+        if fname[0]:
+            dir_name = os.path.dirname(fname[0])
+            image_name = os.path.splitext(os.path.basename(fname[0]))[0]
+            self.processed_image.save(os.path.join(dir_name, 'Web_' + image_name + '.jpg'),
                                       quality=ImageProcess.SAVE_IMAGE_QUALITY,
                                       optimize=True)
 
             app_image = ImageProcess.crop_around_center(self.processed_image, ImageProcess.dst_small_size)
-            app_image.save(os.path.join(dir_name, 'App_' + str(image_name) + '.jpg'),
+            app_image.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
                            quality=ImageProcess.SAVE_IMAGE_QUALITY,
                            optimize=True)
 
