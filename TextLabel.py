@@ -73,7 +73,7 @@ class TextLabel(object):
 
         just_more_than_index = -1
         text_just_more_than_max_width = ''
-        for i in range(1, len(text)):
+        for i in range(1, len(text) + 1):
             if self.font.getsize(text[:i])[0] > self.max_width:
                 just_more_than_index = i
                 text_just_more_than_max_width = text[:i]

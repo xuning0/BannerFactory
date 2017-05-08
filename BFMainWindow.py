@@ -36,7 +36,6 @@ class BFMainWindow(QMainWindow):
         self.desc_edit = QLineEdit()
 
         self.setup_ui()
-        self.show()
 
     def setup_ui(self):
         self.setWindowTitle('BannerFactory')

@@ -7,8 +7,8 @@ from raven import Client
 import CommandLineHelper
 
 
-def handle_exception(exctype, value, traceback):
-    client.captureException((exctype, value, traceback))
+# def handle_exception(exctype, value, traceback):
+#     client.captureException((exctype, value, traceback))
 
 
 def run_command_line():
@@ -41,13 +41,14 @@ def run_command_line():
 
 
 if __name__ == '__main__':
-    # release时，1、填入sentry url（防止开源下私钥泄露），2、取消sys.excepthook行的注释
-    client = Client()
+    # release时，1、填入sentry url（防止开源下私钥泄露），2、取消sys.excepthook行和handle_exception()函数的注释
+    # client = Client()
     # sys.excepthook = handle_exception
 
     if len(sys.argv) == 1:
         app = QApplication(sys.argv)
         window = BFMainWindow()
+        window.show()
         sys.exit(app.exec_())
     else:
         run_command_line()
