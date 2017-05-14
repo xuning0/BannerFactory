@@ -102,7 +102,7 @@ def _draw_tag(image, tag, tag_type):
     label_image = label.label()
 
     ttype = tag_type
-    if tag_type > len(TAG_COLOR_LIST) - 3:
+    if tag_type > len(TAG_COLOR_LIST) - 1:
         ttype = 0
     color = TAG_COLOR_LIST[ttype]
 
