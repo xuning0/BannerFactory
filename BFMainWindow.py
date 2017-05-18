@@ -4,9 +4,9 @@ from PyQt5.QtGui import QKeySequence, QPixmap, QColor
 from PyQt5.QtCore import Qt
 import ImageProcess
 from PIL import Image, ImageQt
-import time
 import os
 from Error import IrregularError
+from ConfigManager import ConfigManager
 
 
 items = ['标签', '标题', '描述']
@@ -130,10 +130,15 @@ class BFMainWindow(QMainWindow):
                                       quality=ImageProcess.SAVE_IMAGE_QUALITY,
                                       optimize=True)
 
-            app_image = ImageProcess.crop_around_center(self.processed_image, ImageProcess.dst_small_size)
-            app_image.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
-                           quality=ImageProcess.SAVE_IMAGE_QUALITY,
-                           optimize=True)
+            processed_image_app = ImageProcess.process(1,
+                                                       Image.open(self.opened_image_path),
+                                                       self.tag_edit.displayText(),
+                                                       self.title_edit.displayText(),
+                                                       self.desc_edit.displayText(),
+                                                       self.combo_box.currentIndex())
+            processed_image_app.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
+                                     quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                                     optimize=True)
 
     def preview(self):
         error_message = None
@@ -152,7 +157,8 @@ class BFMainWindow(QMainWindow):
 
         image = Image.open(self.opened_image_path)
         try:
-            self.processed_image = ImageProcess.process(image,
+            self.processed_image = ImageProcess.process(0,
+                                                        image,
                                                         self.tag_edit.displayText(),
                                                         self.title_edit.displayText(),
                                                         self.desc_edit.displayText(),

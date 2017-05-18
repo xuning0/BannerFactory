@@ -11,15 +11,15 @@ def generate(input_path, tag, title, desc, output, tag_type):
     else:
         ttype = int(tag_type)
 
-    im = ImageProcess.process(im, tag, title, desc, ttype)
+    web_im = ImageProcess.process(0, im, tag, title, desc, ttype)
 
     image_name = int(time.time())
 
-    im.save(os.path.join(output, 'Web_' + str(image_name) + '.jpg'),
-            quality=ImageProcess.SAVE_IMAGE_QUALITY,
-            optimize=True)
+    web_im.save(os.path.join(output, 'Web_' + str(image_name) + '.jpg'),
+                quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                optimize=True)
 
-    app_image = ImageProcess.crop_around_center(im, ImageProcess.dst_small_size)
-    app_image.save(os.path.join(output, 'App_' + str(image_name) + '.jpg'),
-                   quality=ImageProcess.SAVE_IMAGE_QUALITY,
-                   optimize=True)
+    app_im = ImageProcess.process(1, im, tag, title, desc, ttype)
+    app_im.save(os.path.join(output, 'App_' + str(image_name) + '.jpg'),
+                quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                optimize=True)
