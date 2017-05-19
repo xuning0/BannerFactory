@@ -6,7 +6,6 @@ import ImageProcess
 from PIL import Image, ImageQt
 import os
 from Error import IrregularError
-from ConfigManager import ConfigManager
 
 
 items = ['标签', '标题', '描述']

@@ -22,18 +22,17 @@ def process(config_type, image, tag, title, description, tag_type=TAG_TYPE_COLLE
     im = _scale_by_width_or_height(image, config_type)
     im = _crop_around_center(im, (ConfigManager().main_w(config_type), ConfigManager().main_h(config_type)))
 
-    description_label_image, description_label_height = _description_label(description, config_type)
-    title_label_image, title_label_height = _title_label(title, config_type)
+    description_label = _description_label(description, config_type)
+    title_label = _title_label(title, config_type)
     description_label_y = int(
-        ConfigManager().main_h(config_type) - ConfigManager().desc_b(config_type) - description_label_height)
+        ConfigManager().main_h(config_type) - ConfigManager().desc_b(config_type) - description_label.fittingSize[1])
     title_label_y = int(
-        description_label_y - title_label_height - ConfigManager().title_bottom_spacing_to_desc_y(config_type))
+        description_label_y - title_label.fittingSize[1] - ConfigManager().title_bottom_spacing_to_desc_y(config_type))
 
     _draw_gradient(im, title_label_y, ConfigManager().main_h(config_type))
 
-    im.paste(title_label_image, (ConfigManager().title_x(config_type), title_label_y), title_label_image)
-    im.paste(description_label_image, (ConfigManager().desc_x(config_type), description_label_y),
-             description_label_image)
+    title_label.draw_label((ConfigManager().title_x(config_type), title_label_y), im)
+    description_label.draw_label((ConfigManager().desc_x(config_type), description_label_y), im)
 
     _draw_tag(im, tag, tag_type, config_type)
 
@@ -64,9 +63,13 @@ def _description_label(description, config_type):
                           ConfigManager().desc_font_size(config_type)),
                       2,
                       ConfigManager().desc_max_width(config_type),
-                      ConfigManager().desc_line_spacing(config_type))
-    label_image = label.label()
-    return label_image, label.fittingSize[1]
+                      ConfigManager().desc_line_spacing(config_type),
+                      use_shadow=True,
+                      shadow_offset=(0, 3),
+                      shadow_blur=7,
+                      shadow_color=(0, 0, 0, 128))
+    label.size_to_fit()
+    return label
 
 
 def _title_label(title, config_type):
@@ -76,9 +79,13 @@ def _title_label(title, config_type):
                           ConfigManager().title_font_size(config_type)),
                       2,
                       ConfigManager().title_max_width(config_type),
-                      ConfigManager().title_line_spacing(config_type))
-    label_image = label.label()
-    return label_image, label.fittingSize[1]
+                      ConfigManager().title_line_spacing(config_type),
+                      use_shadow=True,
+                      shadow_offset=(0, 3),
+                      shadow_blur=7,
+                      shadow_color=(0, 0, 0, 128))
+    label.size_to_fit()
+    return label
 
 
 def _draw_gradient(image, y1, y2):
@@ -96,7 +103,7 @@ def _draw_tag(image, tag, tag_type, config_type):
                       ImageFont.truetype(
                           os.path.join(CommonUtil.resource_abs_path(), ConfigManager().tag_font(config_type)),
                           ConfigManager().tag_font_size(config_type)))
-    label_image = label.label()
+    label.size_to_fit()
 
     ttype = tag_type
     if tag_type > len(TAG_COLOR_LIST) - 1:
@@ -116,6 +123,6 @@ def _draw_tag(image, tag, tag_type, config_type):
                   270, 90, color)
     tag_view = tag_view.resize((label.fittingSize[0] + tag_height, tag_height), Image.ANTIALIAS)
 
-    tag_view.paste(label_image, (int(tag_height / 2), int((tag_height - label.fittingSize[1]) / 2)), label_image)
+    label.draw_label((int(tag_height / 2), int((tag_height - label.fittingSize[1]) / 2)), tag_view)
 
     image.paste(tag_view, (ConfigManager().tag_x(config_type), ConfigManager().tag_y(config_type)), tag_view)
