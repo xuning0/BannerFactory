@@ -12,7 +12,7 @@ TAG_TYPE_HOT = 3
 
 TAG_COLOR_LIST = [(88, 184, 232), (240, 173, 67), (255, 90, 113), (255, 90, 113)]
 
-SAVE_IMAGE_QUALITY = 55
+SAVE_IMAGE_QUALITY = 80
 
 
 def process(config_type, image, tag, title, description, tag_type=TAG_TYPE_COLLECTION):
