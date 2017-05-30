@@ -1,10 +1,10 @@
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter
 from Error import IrregularError
 import math
 
 
 chinese_punctuations_cannot_at_beginning_of_line = '，。、；】》？！：’”）'
-chinese_punctuations_cannot_at_end_of_line = '【《‘“'
+chinese_punctuations_cannot_at_end_of_line = '【《‘“（'
 
 
 class TextLabel(object):
@@ -129,10 +129,18 @@ class TextLabel(object):
 
         return self.__mutiline_divided_strings, self.__mutiline_divided_strings_height
 
-# FIXME: 无法处理\n
     def _divide_string_to_array(self, text):
         if len(text) == 0:
             return
+
+        # 处理\n换行符
+        lf_index = text.find('\n')
+        if lf_index != -1:
+            if self.font.getsize(text[:lf_index])[0] <= self.max_width:
+                self._append_substring_info(text[:lf_index])
+                self._divide_string_to_array(text[lf_index+1:])
+                return
+
         if self.font.getsize(text)[0] <= self.max_width:
             self._append_substring_info(text)
             return
@@ -165,7 +173,7 @@ class TextLabel(object):
             valid_beginning_line_index = -1
             for n in range(2, len(text_just_more_than_max_width) - 1):
                 if _is_allow_at_beginning_of_line(text_just_more_than_max_width[-n]):
-                    valid_beginning_line_index = just_more_than_index - n + 1
+                    valid_beginning_line_index = just_more_than_index - n
                     break
             if valid_beginning_line_index == -1:  # 整句都找不到可以放在句首的，直接打断
                 self._append_substring_info(text[:(just_more_than_index - 2)])

@@ -6,6 +6,7 @@ import ImageProcess
 from PIL import Image, ImageQt
 import os
 from Error import IrregularError
+import CommonUtil
 
 
 items = ['标签', '标题', '描述']
@@ -132,8 +133,8 @@ class BFMainWindow(QMainWindow):
             processed_image_app = ImageProcess.process(1,
                                                        Image.open(self.opened_image_path),
                                                        self.tag_edit.displayText(),
-                                                       self.title_edit.displayText(),
-                                                       self.desc_edit.displayText(),
+                                                       CommonUtil.restoreNewlineCharacter(self.title_edit.displayText()),
+                                                       CommonUtil.restoreNewlineCharacter(self.desc_edit.displayText()),
                                                        self.combo_box.currentIndex())
             processed_image_app.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
                                      quality=ImageProcess.SAVE_IMAGE_QUALITY,
@@ -159,8 +160,8 @@ class BFMainWindow(QMainWindow):
             self.processed_image = ImageProcess.process(0,
                                                         image,
                                                         self.tag_edit.displayText(),
-                                                        self.title_edit.displayText(),
-                                                        self.desc_edit.displayText(),
+                                                        CommonUtil.restoreNewlineCharacter(self.title_edit.displayText()),
+                                                        CommonUtil.restoreNewlineCharacter(self.desc_edit.displayText()),
                                                         self.combo_box.currentIndex())
             self.scale_image_to_aspect_fit_label(ImageQt.toqpixmap(self.processed_image))
         except IrregularError as e:

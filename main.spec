@@ -10,7 +10,7 @@ a = Analysis(['main.py'],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
-             excludes=[],
+             excludes=['UnitTest'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
@@ -34,7 +34,7 @@ app = BUNDLE(exe,
              info_plist={
                     'NSHighResolutionCapable': 'True',
                     'CFBundleDevelopmentRegion': 'zh-CN',
-                    'CFBundleShortVersionString': '1.1.0',
+                    'CFBundleShortVersionString': '1.1.1',
                     'NSHumanReadableCopyright': 'Copyright © 2017年 XuNing. All rights reserved.',
                 }
              )
