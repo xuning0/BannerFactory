@@ -183,7 +183,8 @@ class TextLabel(object):
                 self._divide_string_to_array(text[valid_beginning_line_index:])
 
         if 1 < self.number_of_lines < len(self.__mutiline_divided_strings):
-            raise IrregularError('文字在{}行内显示不完'.format(self.number_of_lines))
+            raise IrregularError('文字"{}"在{}行内显示不完'.format(''.join(self.__mutiline_divided_strings),
+                                                          self.number_of_lines))
 
     def _append_substring_info(self, substring):
         self.__mutiline_divided_strings.append(substring)

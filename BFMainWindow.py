@@ -129,16 +129,19 @@ class BFMainWindow(QMainWindow):
             self.processed_image.save(os.path.join(dir_name, 'Web_' + image_name + '.jpg'),
                                       quality=ImageProcess.SAVE_IMAGE_QUALITY,
                                       optimize=True)
-
-            processed_image_app = ImageProcess.process(1,
-                                                       Image.open(self.opened_image_path),
-                                                       self.tag_edit.displayText(),
-                                                       CommonUtil.restoreNewlineCharacter(self.title_edit.displayText()),
-                                                       CommonUtil.restoreNewlineCharacter(self.desc_edit.displayText()),
-                                                       self.combo_box.currentIndex())
-            processed_image_app.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
-                                     quality=ImageProcess.SAVE_IMAGE_QUALITY,
-                                     optimize=True)
+            try:
+                processed_image_app = ImageProcess.process(1,
+                                                           Image.open(self.opened_image_path),
+                                                           self.tag_edit.displayText(),
+                                                           CommonUtil.restoreNewlineCharacter(self.title_edit.displayText()),
+                                                           CommonUtil.restoreNewlineCharacter(self.desc_edit.displayText()),
+                                                           self.combo_box.currentIndex())
+            except IrregularError as e:
+                show_error_alert('生成App版Banner时出错了', e.message)
+            else:
+                processed_image_app.save(os.path.join(dir_name, 'App_' + image_name + '.jpg'),
+                                         quality=ImageProcess.SAVE_IMAGE_QUALITY,
+                                         optimize=True)
 
     def preview(self):
         error_message = None
@@ -165,7 +168,7 @@ class BFMainWindow(QMainWindow):
                                                         self.combo_box.currentIndex())
             self.scale_image_to_aspect_fit_label(ImageQt.toqpixmap(self.processed_image))
         except IrregularError as e:
-            show_error_alert('出错了', e.message)
+            show_error_alert('生成Web版Banner时出错了', e.message)
 
     def resizeEvent(self, QResizeEvent):
         current_image = None
