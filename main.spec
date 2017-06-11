@@ -34,7 +34,7 @@ app = BUNDLE(exe,
              info_plist={
                     'NSHighResolutionCapable': 'True',
                     'CFBundleDevelopmentRegion': 'zh-CN',
-                    'CFBundleShortVersionString': '1.1.1',
+                    'CFBundleShortVersionString': '1.1.2',
                     'NSHumanReadableCopyright': 'Copyright © 2017年 XuNing. All rights reserved.',
                 }
              )
