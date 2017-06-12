@@ -3,7 +3,7 @@ from Error import IrregularError
 import math
 
 
-chinese_punctuations_cannot_at_beginning_of_line = '，。、；】》？！：’”）'
+chinese_punctuations_cannot_at_beginning_of_line = '，。、；】》？！：’”）…'
 chinese_punctuations_cannot_at_end_of_line = '【《‘“（'
 
 
